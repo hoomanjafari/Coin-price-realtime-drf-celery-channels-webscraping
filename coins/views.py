@@ -18,4 +18,8 @@ class CoinsPriceView(APIView):
                 return Response({
                     "detail": coins["message"], "error": coins["error"]
                 }, status=status.HTTP_404_NOT_FOUND)
+            elif coins["message"] == "network is weak":
+                return Response({
+                    "detail": coins["message"], "error":coins["error"]
+                }, status=status.HTTP_400_BAD_REQUEST)
         return Response(coins, status=status.HTTP_200_OK)

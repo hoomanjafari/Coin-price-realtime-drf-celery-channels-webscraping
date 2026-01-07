@@ -3,8 +3,11 @@ import re
 from bs4 import BeautifulSoup
 import json
 
+from channels.layers import get_channel_layer
+
 
 def scrape():
+    update_done = False
     try:
         data = requests.get("https://coinmarketcap.com/")
         if data.status_code == 200:
@@ -18,7 +21,10 @@ def scrape():
             coins_p = [p.find_all("p", attrs={'class': 'coin-item-name'}) for p in coins_tr[1:11]]
             price = re.findall(r"\$[\d\.\,]+", str(coins_span))
             names = re.findall(r"(?<=>)[A-Za-z]+", str(coins_p))
-            return json.dumps({"message": "success", "data": list(zip(names, price))})
+            update_done = True
+            if update_done:
+                return json.dumps({"message": "success", "data": list(zip(names, price))})
+            return json.dumps({"message": "error", "error": "network is weak"})
         return json.dumps({"message": "connection error", "status": data.status_code})
     except Exception as e:
         return json.dumps({"message": "invalid url", "error": str(e)})
